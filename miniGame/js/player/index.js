@@ -75,6 +75,18 @@ export default class Player extends Sprite {
    * 改变战机的位置
    */
   initEvent() {
+    wx.onKeyboardComplete(((res) => {
+      console.log('onKeyboardComplete(res)' + JSON.stringify(res));
+    }).bind(this))
+
+    wx.onKeyboardConfirm(((res) => {
+      console.log('onKeyboardConfirm(res)' + JSON.stringify(res));
+    }).bind(this))
+
+    wx.onKeyboardInput(((res) => {
+      console.log('onKeyboardInput(res)' + JSON.stringify(res));
+    }).bind(this))
+
     canvas.addEventListener('touchstart', ((e) => {
       e.preventDefault()
 
@@ -86,6 +98,44 @@ export default class Player extends Sprite {
         this.touched = true
 
         this.setAirPosAcrossFingerPosZ(x, y)
+      }
+
+      if (this.keyBoardVisible) {
+        this.keyBoardVisible = false
+        wx.hideKeyboard({
+          success(res) {
+            console.log('hide success:' + res.data)
+          },
+          fail(res) {
+            console.log('hide fail:' + res.data)
+          }
+        })
+      } else {
+        this.keyBoardVisible = true
+        wx.showKeyboard({
+          defaultValue: 'defaultValue',
+          maxLength: '30',
+          multiple: true,
+          confirmHold: true,
+          confirmType: 'next',
+          success(res) {
+            console.log('show success:' + res.data)
+
+            wx.updateKeyboard && wx.updateKeyboard({
+              value: '123',
+              success(res) {
+                console.log('updateKeyboard:' + JSON.stringify(res))
+              },
+              fail(res) {
+
+              }
+            })
+
+          },
+          fail(res) {
+            console.log('show fail:' + res.data)
+          }
+        })
       }
 
     }).bind(this))
@@ -104,22 +154,9 @@ export default class Player extends Sprite {
     canvas.addEventListener('touchend', ((e) => {
       e.preventDefault()
 
-      wx.showKeyboard({
-        defaultValue: 'defaultValue',
-        maxLength: '30',
-        multiple: true,
-        confirmHold: true,
-        confirmType: 'done',
-        success(res) {
-          console.log('success:' + res.data)
-        },
-        fail(res) {
-          console.log('fail:' + res.data)
-        }
-      })
-
       this.touched = false
     }).bind(this))
+
   }
 
   /**
